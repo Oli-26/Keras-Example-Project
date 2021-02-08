@@ -43,9 +43,13 @@ class Predictor:
     def TestModel(self, x_test, y_test):        
         expected_output = y_test["SalePrice"].tolist()
         predicted_output = self.model.predict(x_test).tolist()
-        for i in range(0,10):
-            print(str(expected_output[i]) + " | " + str(predicted_output[i]))
+
+        print("Examples (Actual price | predicted price):")
+        for i in range(0,25):
+            print("         " + str(expected_output[i]) + " | " + str(predicted_output[i]))
         
+        print("\n")
+
         mean_difference_total = 0
         mean_percent_accuracy_total = 0
         for i in range(0, len(expected_output)):

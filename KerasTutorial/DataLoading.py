@@ -7,8 +7,7 @@ from keras.utils import to_categorical
 
 def LoadDataSet(mode = "regression"):
     df = pd.read_csv('../Data/train.csv', index_col=0)
-    dfX = df[["MoSold", "YrSold", "SaleType", "SaleCondition", "1stFlrSF", "2ndFlrSF"]]
-    dfY = df[["SalePrice"]]
+    dfX = df[["MoSold", "YrSold", "SaleType", "SaleCondition", "1stFlrSF", "2ndFlrSF", "YearBuilt", "OverallQual", "OverallCond"]]
 
     # Convert sale type & condition to a number
     SaleTypes = dfX.SaleType.unique().tolist()
@@ -16,6 +15,8 @@ def LoadDataSet(mode = "regression"):
     dfX.SaleType = dfX.SaleType.map(lambda x: SaleTypes.index(x))
     dfX.SaleCondition = dfX.SaleCondition.map(lambda x: SaleConditions.index(x))
 
+    
+    dfY = df[["SalePrice"]]
     # Create binary output to see if house costs more than 500k
     if(mode == "binary"):
         dfY.SalePrice = dfY.SalePrice.map(lambda x: 1 if x > 200000 else 0)
