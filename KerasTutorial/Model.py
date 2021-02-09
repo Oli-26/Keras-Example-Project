@@ -5,14 +5,14 @@ import numpy as np
 from sklearn.metrics import classification_report
 
 class BinaryClassifier:
-    def __init__(self, input_dimension, output_dimension, layer_amount):
-        self.CreateModel(input_dimension, output_dimension, layer_amount)
+    def __init__(self, input_dimension, output_dimension, layer_amount, activation = "relu", optimizer = "adam"):
+        self.CreateModel(input_dimension, output_dimension, layer_amount, activation, optimizer)
 
-    def CreateModel(self, input_dimension, output_dimension, layer_amount):
+    def CreateModel(self, input_dimension, output_dimension, layer_amount, activation, optimizer):
         self.model = Sequential()
-        self.model.add(layers.Dense(layer_amount, activation='relu', input_dim = input_dimension))
+        self.model.add(layers.Dense(layer_amount, activation=activation, input_dim = input_dimension))
         self.model.add(layers.Dense(output_dimension, activation='softmax'))
-        self.model.compile(loss='binary_crossentropy',  optimizer='adam')
+        self.model.compile(loss='binary_crossentropy',  optimizer=optimizer)
     
     def TrainModel(self, x_train, y_train, x_val, y_val, epochs = 15, batch_size = 15):
         self.model.fit(x_train, y_train, epochs = epochs, verbose=True, batch_size = batch_size, validation_data = (x_val, y_val))
@@ -27,14 +27,14 @@ class BinaryClassifier:
 
 
 class Predictor:
-    def __init__(self, input_dimension, layer_amount):
-        self.CreateModel(input_dimension, layer_amount)
+    def __init__(self, input_dimension, layer_amount, activation = "relu", optimizer = "adam"):
+        self.CreateModel(input_dimension, layer_amount, activation, optimizer)
 
-    def CreateModel(self, input_dimension, layer_amount):
+    def CreateModel(self, input_dimension, layer_amount, activation, optimizer):
         self.model = Sequential()
-        self.model.add(layers.Dense(layer_amount, activation='relu', input_dim = input_dimension))
-        self.model.add(layers.Dense(1, activation='relu'))
-        self.model.compile(loss='mse',  optimizer='adam')
+        self.model.add(layers.Dense(layer_amount, activation=activation, input_dim = input_dimension))
+        self.model.add(layers.Dense(1, activation=activation))
+        self.model.compile(loss='mse',  optimizer=optimizer)
     
     def TrainModel(self, x_train, y_train, x_val, y_val, epochs = 15, batch_size = 15):
         self.model.fit(x_train, y_train, epochs = epochs, verbose=True, batch_size = batch_size, validation_data = (x_val, y_val))
@@ -45,21 +45,35 @@ class Predictor:
         predicted_output = self.model.predict(x_test).tolist()
 
         print("Examples (Actual price | predicted price):")
-        for i in range(0,25):
+        for i in range(0,10):
             print("         " + str(expected_output[i]) + " | " + str(predicted_output[i]))
         
         print("\n")
 
         mean_difference_total = 0
         mean_percent_accuracy_total = 0
+        mean_price = 0
         for i in range(0, len(expected_output)):
             mean_difference = abs(expected_output[i] - predicted_output[i][0])
             mean_percent_accuracy = 1.00 - mean_difference/expected_output[i]
 
             mean_difference_total += mean_difference
             mean_percent_accuracy_total += mean_percent_accuracy
+            mean_price += expected_output[i]
+
+        mean_price = mean_price/len(expected_output)
+
+        generic_accuracy = 0
+        for i in range(0, len(expected_output)):
+            mean_difference = abs(expected_output[i] - mean_price)
+            generic_accuracy += 1.00 - mean_difference/expected_output[i]
+
+        generic_accuracy = generic_accuracy/len(expected_output)
 
         mean_difference_total = mean_difference_total/len(expected_output)
         mean_percent_accuracy_total = mean_percent_accuracy_total/len(expected_output)
-        print("Mean difference: " + str(mean_difference_total))
-        print("Mean Accuracy: " + str(mean_percent_accuracy_total*100) + "%")
+        print("Mean difference in model predictions: " + str(mean_difference_total))
+        print("Mean Accuracy in model predictions: " + str(mean_percent_accuracy_total*100) + "%")
+        print("\n")
+        print("Mean house price: " + str(mean_price))
+        print("Accuracy if we always guess the mean: " + str(generic_accuracy*100) + "%")
