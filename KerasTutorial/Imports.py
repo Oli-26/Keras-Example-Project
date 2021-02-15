@@ -21,3 +21,4 @@ pd.options.mode.chained_assignment = None
 
 from Model import BinaryClassifier, Predictor
 from DataLoading import LoadDataSet, SplitDataSet, GetDimensions
+from Plot import Plot
