@@ -1,14 +1,13 @@
 import numpy as np
 from sklearn.metrics import classification_report
-
-
+from prettytable import PrettyTable
 
 def RegressionPrintExamples(expected_output, predicted_output, amount):
-    print("Examples (Actual price | predicted price):")
+    t = PrettyTable(['Actual price', 'Predicted price', 'Accuracy (%)'])
     for i in range(0,amount):
-        print("         " + str(expected_output[i]) + " | " + str(predicted_output[i]))
-    
-    print("\n")
+        accuracy = (1-abs(predicted_output[i][0]-expected_output[i])/expected_output[i])*100
+        t.add_row([expected_output[i], "%0.0f" % predicted_output[i][0], "%0.2f" % accuracy])
+    print(t)
 
 def RegressionMeanAccuracy(expected_output, predicted_output):
     mean_difference_total = 0
@@ -33,13 +32,14 @@ def RegressionMeanAccuracy(expected_output, predicted_output):
 
     mean_difference_total = mean_difference_total/len(expected_output)
     mean_percent_accuracy_total = mean_percent_accuracy_total/len(expected_output)
-    print("Mean difference in model predictions: " + str(mean_difference_total))
-    print("Mean Accuracy in model predictions: " + str(mean_percent_accuracy_total*100) + "%")
-    print("\n")
-    print("Mean house price: " + str(mean_price))
-    print("Accuracy if we always guess the mean: " + str(generic_accuracy*100) + "%")
+
+    t = PrettyTable(['Statistic Desc', 'Value'])
+    t.add_row(['Mean house price', "%0.2f" % mean_price])
+    t.add_row(['Mean absolute error of predictions',  "%0.2f" % mean_difference_total]) # ACC Is mean dif/mean cost.
+    t.add_row(['Mean accuracy of predictions', str( "%0.2f" % (mean_percent_accuracy_total*100)) + "%"])
+    t.add_row(['Mean accuracy if mean-price always predicted', str( "%0.2f" % (generic_accuracy*100)) + "%"])
+    print(t)
 
 
 def ClassifierReport(expected_output, predicted_output):
-    labels = ['below mark', 'above mark']
-    print(classification_report(expected_output, predicted_output, target_names = labels))
+    print(classification_report(expected_output, predicted_output))

@@ -5,25 +5,35 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 from keras.utils import to_categorical
 
-def LoadDataSet(mode = "regression", splitPoint = 200000):
+def PriceCategories(x):
+    if(x > 400000):
+        return 4
+    if(x > 300000):
+        return 3
+    if(x > 200000):
+        return 2
+    if(x > 100000):
+        return 1
+    return 0
+
+
+def LoadDataSet(mode = "regression"):
     df = pd.read_csv('../Data/train.csv', index_col=0)
     dfX = df[["MoSold", "YrSold", "SaleType", "SaleCondition", "GrLivArea",  "YearBuilt", "OverallQual", "OverallCond", "BldgType", "GarageArea"]]
-
-    # Convert sale type & condition to a number
+    
+    # Convert non number values to numbers.
     SaleTypes = dfX.SaleType.unique().tolist()
     SaleConditions = dfX.SaleCondition.unique().tolist()
     dfX.SaleType = dfX.SaleType.map(lambda x: SaleTypes.index(x))
     dfX.SaleCondition = dfX.SaleCondition.map(lambda x: SaleConditions.index(x))
-
-    #other conversions
     BldgType = dfX.BldgType.unique().tolist()
     dfX.BldgType = dfX.BldgType.map(lambda x: BldgType.index(x))
 
-    
+
     dfY = df[["SalePrice"]]
-    # Create binary output to see if house costs more than 500k
     if(mode == "binary"):
-        dfY.SalePrice = dfY.SalePrice.map(lambda x: 1 if x > splitPoint else 0)
+        dfY.SalePrice = dfY.SalePrice.map(lambda x: PriceCategories(x))
+        
 
     return (dfX, dfY)
 
@@ -41,3 +51,11 @@ def GetDimensions(x_data, y_data):
     output_dimension = y_data.shape[1]
 
     return (input_dimension, output_dimension)
+
+def Normalize(data):
+    normalized_data = data.copy()
+    for feature_name in data.columns:
+        max_value = data[feature_name].max()
+        min_value = data[feature_name].min()
+        normalized_data[feature_name] = (data[feature_name] - min_value) / (max_value - min_value)
+    return normalized_data

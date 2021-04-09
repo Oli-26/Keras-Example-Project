@@ -11,9 +11,20 @@ class BinaryClassifier:
         self.CreateModel(input_dimension, output_dimension, layer_amount, activation, optimizer)
 
     def CreateModel(self, input_dimension, output_dimension, layer_amount, activation, optimizer):
-        self.model = Sequential()
-        self.model.add(layers.Dense(layer_amount, activation=activation, input_dim = input_dimension))
-        self.model.add(layers.Dense(output_dimension, activation='softmax'))
+        self.model = Sequential([
+            Input(shape = input_dimension),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(100, activation=activation),
+            layers.Dense(output_dimension, activation='softmax')
+        ])
         self.model.compile(loss='binary_crossentropy',  optimizer=optimizer)
     
     def TrainModel(self, x_train, y_train, x_val, y_val, epochs = 15, batch_size = 15):
@@ -31,9 +42,14 @@ class Predictor:
         self.CreateModel(input_dimension, layer_amount, activation, optimizer)
 
     def CreateModel(self, input_dimension, layer_amount, activation, optimizer):
-        self.model = Sequential()
-        self.model.add(layers.Dense(layer_amount, activation=activation, input_dim = input_dimension))
-        self.model.add(layers.Dense(1, activation=activation))
+        self.model = Sequential([
+            Input(shape = input_dimension),
+            layers.Dense(layer_amount, activation=activation),
+            layers.Dense(layer_amount/2, activation=activation),
+            layers.Dense(layer_amount/4, activation=activation),
+            layers.Dense(layer_amount/8, activation=activation),
+            layers.Dense(1, activation=activation)
+        ])
         self.model.compile(loss='mse',  optimizer=optimizer)
     
     def TrainModel(self, x_train, y_train, x_val, y_val, epochs = 15, batch_size = 15):
@@ -45,4 +61,4 @@ class Predictor:
         predicted_output = self.model.predict(x_test).tolist()
         RegressionPrintExamples(expected_output, predicted_output, 10)
         RegressionMeanAccuracy(expected_output, predicted_output)
-        RegressionExamplesPlot(expected_output, predicted_output)
+        InfoPlotForPresentation(self.history, expected_output, predicted_output)
